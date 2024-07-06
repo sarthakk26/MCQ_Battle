@@ -1,0 +1,66 @@
+/* src/components/Home/Home.css */
+
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 70px); /* Adjust according to your navbar height */
+    text-align: center;
+    background: #f0f2f5;
+    padding: 20px;
+    color: #333;
+  }
+  
+  .home h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #007bff;
+  }
+  
+  .home p {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+  
+  .home-actions {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: white;
+    background-color: #007bff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  @media (max-width: 600px) {
+    .home h2 {
+      font-size: 2em;
+    }
+  
+    .home p {
+      font-size: 1em;
+    }
+  
+    .home-actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+  

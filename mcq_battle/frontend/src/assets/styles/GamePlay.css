@@ -1,0 +1,36 @@
+/* src/components/Gameplay.css */
+.gameplay {
+    text-align: center;
+    margin: 20px;
+  }
+  
+  .gameplay h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .question {
+    margin-top: 20px;
+  }
+  
+  .question h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .question ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .question li {
+    margin: 10px 0;
+  }
+  
+  .question button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  

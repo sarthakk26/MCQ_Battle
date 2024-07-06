@@ -1,0 +1,71 @@
+
+/* src/components/GameLobby/GameLobby.css */
+
+.game-lobby {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .game-lobby h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #007bff;
+  }
+  
+  .game-lobby p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+  }
+  
+  .game-lobby ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .game-lobby li {
+    font-size: 1em;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .game-lobby button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 1em;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .game-lobby button:hover {
+    background-color: #0056b3;
+  }
+  
+  @media (max-width: 600px) {
+    .game-lobby {
+      padding: 10px;
+    }
+  
+    .game-lobby h2 {
+      font-size: 1.5em;
+    }
+  
+    .game-lobby p {
+      font-size: 1em;
+    }
+  
+    .game-lobby button {
+      font-size: 0.9em;
+      padding: 8px 16px;
+    }
+  }
+  
