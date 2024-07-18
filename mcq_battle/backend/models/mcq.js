@@ -21,7 +21,7 @@ const mcqSchema = new Schema({
     default: 'medium'
   }
 }, {
-  timestamps: true
+  timestampsa: true
 });
 
 module.exports = mongoose.model('mcq', mcqSchema);

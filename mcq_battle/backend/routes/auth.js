@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.js');
+const Admin = require('../models/Admin'); 
 const config = require('../config/config'); // Make sure config.js contains the JWT secret
 
 // Registration Endpoint
@@ -53,5 +54,38 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const admin = await Admin.findOne({ username });
+
+    if (!admin) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const isMatch = await admin.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const payload = {
+        id: admin._id,
+        username: admin.username
+    };
+
+    const token = jwt.sign(payload, config.jwtSecret, {
+      expiresIn: '1h',
+    });
+
+    res.json({ token });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 
 module.exports = router;

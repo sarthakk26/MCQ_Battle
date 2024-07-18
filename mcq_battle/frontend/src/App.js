@@ -9,6 +9,11 @@ import Dashboard from './components/Dashboard/Dashboard';
 import GamePlay from './components/Game/GamePlay';
 import GameLobby from './components/Game/GameLobby';
 import PrivateRoute from './components/PrivateRoute';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
+import AdminManageMCQs from './components/AdminManageMcq';
+import AdminUpdateCredentials from './components/AdminUpdateCredentials';
+import ProtectedRoute from './components/ProtectedRoute';
 //import io from 'socket.io-client';
 
 import './assets/styles/styles.css';
@@ -24,6 +29,11 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/mcqs" element={<ProtectedRoute><AdminManageMCQs /></ProtectedRoute>} />
+        <Route path="/admin/update-credentials" element={<ProtectedRoute><AdminUpdateCredentials /></ProtectedRoute>} />
+
         
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
