@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const auth = require('../middleware/auth');
 const Game = require('../models/Game');
 const mcq = require('../models/mcq');
-const { getIo } = require('../socket'); // Import getIo from socket.js
+const { getIo, updateScoreAndEmit } = require('../socket'); // Import getIo from socket.js
 const User = require('../models/User');
 
 // Function to generate random questions
@@ -28,6 +28,9 @@ router.post('/', auth, async (req, res) => {
     });
 
     await newGame.save();
+
+    const io = getIo();
+    io.emit('newGame', newGame); // Emit an event when a new game is created
 
     res.status(201).json({ message: 'Game created successfully', game: newGame });
   } catch (err) {
@@ -124,12 +127,17 @@ router.post('/:gameId/start', auth, async (req, res) => {
     game.questions = questionSequence.map(q => q._id);
     game.currentQuestionIndex = 0;
 
+    // Initialize scores for all participants
+    game.participants.forEach(participant => {
+      game.scores.push({ user: participant, score: 0 });
+    });
+
     await game.save();
 
     const io = getIo();
-    io.to(game._id.toString()).emit('gameStarted', { question: questionSequence[0] });
+    io.to(game._id.toString()).emit('gameStarted', { question: questionSequence[0], scores: game.scores });
 
-    res.status(200).json({ message: 'Game started', question: questionSequence[0] });
+    res.status(200).json({ message: 'Game started', question: questionSequence[0], scores: game.scores });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -156,11 +164,10 @@ router.post('/:gameId/answer', auth, async (req, res) => {
     if (question.options[question.correctOptionIndex] === answer) {
       correct = true;
       const participant = game.scores.find(score => score.user.toString() === req.user.id);
-      if (participant) {
-        participant.score += 1;
-      } else {
-        game.scores.push({ user: req.user.id, score: 1 });
-      }
+      const newScore = participant ? participant.score + 1 : 1;
+
+      // Update score and emit to all participants
+      await updateScoreAndEmit(gameId, req.user.id, newScore);
     }
 
     // Move to the next question for this participant
@@ -189,7 +196,6 @@ router.post('/:gameId/answer', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 // POST /api/games/:gameId/end - End the game
 router.post('/:gameId/end', auth, async (req, res) => {
   try {

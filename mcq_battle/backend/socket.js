@@ -1,9 +1,30 @@
-// socket.js
 const { Server } = require('socket.io');
 const Game = require('./models/Game');
 const mcq = require('./models/mcq');
 
 let io;
+
+const updateScoreAndEmit = async (gameId, userId, score) => {
+  const game = await Game.findById(gameId);
+
+  if (!game) {
+    console.error('Game not found');
+    return;
+  }
+
+  const scoreEntry = game.scores.find(entry => entry.user.toString() === userId.toString());
+  if (scoreEntry) {
+    scoreEntry.score = score;
+  } else {
+    game.scores.push({ user: userId, score });
+  }
+
+  await game.save();
+
+  const populatedGame = await Game.findById(gameId).populate("scores.user", "username");
+
+  io.to(gameId).emit('scoreUpdate', populatedGame.scores);
+};
 
 module.exports = {
   init: (httpServer) => {
@@ -41,13 +62,14 @@ module.exports = {
             socket.emit('question', question);
           }
         }
+
+        // Emit the current scores
+        const populatedGame = await Game.findById(gameId).populate("scores.user", "username");
+        socket.emit('scoreUpdate', populatedGame.scores);
       });
 
       // Handle gameStarted event
       socket.on('gameStarted', async ({ game }) => {
-        //{socket.join(game._id);}
-
-        // Emit the 'gameStarted' event to all participants
         io.to(game._id.toString()).emit('gameStarted', { game });
       });
 
@@ -65,4 +87,5 @@ module.exports = {
     }
     return io;
   },
+  updateScoreAndEmit // Export the function
 };

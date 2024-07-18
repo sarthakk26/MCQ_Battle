@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 import '../../assets/styles/Dashboard.css';
 
 const Dashboard = () => {
   const [games, setGames] = useState([]);
   const [creatingGame, setCreatingGame] = useState(false);
   const navigate = useNavigate();
+  const socket = io('http://localhost:5000', {
+    withCredentials: true,
+  });
 
   useEffect(() => {
     fetchGames();
+
+    // Listen for new game events
+    socket.on('newGame', (newGame) => {
+      setGames((prevGames) => [...prevGames, newGame]);
+    });
+
+    // Clean up the socket connection on component unmount
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const fetchGames = async () => {
