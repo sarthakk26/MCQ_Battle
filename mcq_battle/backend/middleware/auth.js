@@ -2,11 +2,13 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const Admin = require('../models/Admin');
 
 const auth = async (req, res, next) => {
   // Get token from header
   const token = req.header('Authorization');
 
+  // Check if no token
   // Check if no token
   if (!token || !token.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token, authorization denied' });
@@ -20,7 +22,16 @@ const auth = async (req, res, next) => {
 
     // Check if the token belongs to a regular user
     let user = await User.findOne({ username: decoded.username });
+    // Check if the token belongs to a regular user
+    let user = await User.findOne({ username: decoded.username });
 
+    if (!user) {
+      // If not a regular user, check if it's an admin
+      user = await Admin.findOne({ username: decoded.username });
+      if (!user) {
+        console.log('User not found in both User and Admin collections');
+        return res.status(401).json({ message: 'User not authorized' });
+      }
     if (!user) {
       // If not a regular user, check if it's an admin
       user = await Admin.findOne({ username: decoded.username });
