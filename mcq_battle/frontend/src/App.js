@@ -8,6 +8,7 @@ import Register from './components/Auth/Register';
 import Dashboard from './components/Dashboard/Dashboard';
 import GamePlay from './components/Game/GamePlay';
 import GameLobby from './components/Game/GameLobby';
+import GameEnd from './components/Game/GameEnd';
 import PrivateRoute from './components/PrivateRoute';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/game/:gameId/play" element={<GamePlay />} />
           <Route path="/game/:gameId" element={<GameLobby />} />
+          <Route path="/game/:gameId/end" element={<GameEnd />} />
         </Route>
       </Routes>
     </Router>

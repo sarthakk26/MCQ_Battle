@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const auth = require('../middleware/auth');
 const Game = require('../models/Game');
 const mcq = require('../models/mcq');
-const { getIo, updateScoreAndEmit } = require('../socket'); // Import getIo from socket.js
+const { getIo, updateScoreAndEmit,endGameForPlayer } = require('../socket'); // Import getIo from socket.js
 const User = require('../models/User');
 
 // Function to generate random questions
@@ -197,23 +197,23 @@ router.post('/:gameId/answer', auth, async (req, res) => {
   }
 });
 // POST /api/games/:gameId/end - End the game
+// POST /api/games/:gameId/end - End the game
 router.post('/:gameId/end', auth, async (req, res) => {
   try {
     const game = await Game.findById(req.params.gameId);
-
     if (!game) {
       return res.status(404).json({ message: 'Game not found' });
-    }
-
-    if (game.owner.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Only the game owner can end the game' });
     }
 
     game.status = 'completed';
     await game.save();
 
-    const io = getIo();
-    io.to(game._id.toString()).emit('gameEnded', { message: 'The game has ended' });
+    // Call endGameForPlayer for all players
+    await endGameForPlayer(req.params.gameId, req.user.id);
+    
+
+    // const io = getIo();
+    // io.to(game._id.toString()).emit('RequestLeaderboard', game._id);
 
     res.status(200).json({ message: 'Game ended successfully' });
   } catch (err) {
@@ -221,5 +221,6 @@ router.post('/:gameId/end', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
 
 module.exports = router;

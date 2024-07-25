@@ -9,10 +9,12 @@ const gameSchema = new Schema({
   currentQuestionIndex: { type: Number, default: 0 },
   scores: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    score: { type: Number, default: 0 }
+    score: { type: Number, default: 0 },
+    startTime: { type: Date, default: Date.now },
+    endTime: { type: Date },
   }],
   participantProgress: { type: Map, of: Number, default: {} }, // Track each participant's question index
-  status: { type: String, default: 'waiting' }
+  status: { type: String, default: 'waiting' },
 });
 
 module.exports = mongoose.model('Game', gameSchema);
