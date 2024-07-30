@@ -7,44 +7,54 @@ const Dashboard = () => {
   const [games, setGames] = useState([]);
   const [creatingGame, setCreatingGame] = useState(false);
   const navigate = useNavigate();
-  const socket = io('http://localhost:5000', {
-    withCredentials: true,
-  });
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    fetchGames();
-
-    // Listen for new game events
-    socket.on('newGame', (newGame) => {
-      setGames((prevGames) => [...prevGames, newGame]);
+    const newSocket = io('http://localhost:5000', {
+      withCredentials: true,
     });
 
-    // Clean up the socket connection on component unmount
+    setSocket(newSocket);
+
+    newSocket.on('newGame', (newGame) => {
+      console.log("newGame event received:", newGame);
+      setGames((prevGames) => {
+        if (!prevGames.some(game => game._id === newGame._id)) {
+          return [...prevGames, newGame];
+        }
+        return prevGames;
+      });
+    });
+
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
     };
   }, []);
 
-  const fetchGames = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/games/waiting', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/games/waiting', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-      const data = await response.json();
-      if (response.ok) {
-        setGames(data);
-      } else {
-        console.error('Failed to fetch games:', data.message);
+        const data = await response.json();
+        if (response.ok) {
+          setGames(data);
+        } else {
+          console.error('Failed to fetch games:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching games:', error);
       }
-    } catch (error) {
-      console.error('Error fetching games:', error);
-    }
-  };
+    };
+
+    fetchGames();
+  }, []);
 
   const handleCreateGame = async () => {
     setCreatingGame(true);
@@ -59,7 +69,7 @@ const Dashboard = () => {
 
       const data = await response.json();
       if (response.ok) {
-        navigate(`/game/${data.game._id}`); // Update to navigate to the correct route
+        navigate(`/game/${data.game._id}`);
       } else {
         console.error('Failed to create game:', data.message);
       }
@@ -70,23 +80,20 @@ const Dashboard = () => {
   };
 
   const handleJoinGame = async (gameId) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/games/${gameId}/join`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+    const userId = localStorage.getItem('userId');
+    if (socket) {
+      const socketId = socket.id;
+      socket.emit('joinRequest', { gameId, userId, socketId });
+      socket.on('joinRequestResponse', ({ accepted, gameId }) => {
+        console.log('Join request reached dashboard with ::', accepted);
+        if (accepted) {
+          console.log('Join request accepted');
+          
+          navigate(`/game/${gameId}`);
+        } else {
+          alert('Your join request was declined.');
+        }
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        navigate(`/game/${data.game._id}`); // Update to navigate to the correct route
-      } else {
-        console.error('Failed to join game:', data.message);
-      }
-    } catch (error) {
-      console.error('Error joining game:', error);
     }
   };
 

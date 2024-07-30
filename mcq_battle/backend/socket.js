@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const Game = require('./models/Game');
 const mcq = require('./models/mcq');
+const User = require('./models/User');
 
 let io;
 
@@ -32,7 +33,7 @@ const endGameForPlayer = async (gameId, userId) => {
     if (!game) throw new Error('Game not found');
 
     const player = game.scores.find(score => score.user._id.toString() === userId.toString());
-    console.log("player found",player);
+    console.log("player found", player);
     if (!player) throw new Error('Player not found in game');
 
     console.log('Ending game for player:', userId);
@@ -58,7 +59,43 @@ module.exports = {
 
     io.on('connection', (socket) => {
       console.log('Client connected:', socket.id);
-    
+
+      socket.on('joinRequest', async ({ gameId, userId, socketId }) => {
+        if (!gameId) {
+          console.error('Invalid game ID for joinRequest');
+          return;
+        }
+        console.log('Join request received:', gameId, userId, socketId);
+        const game = await Game.findById(gameId).populate('owner');
+        if (!game) {
+          socket.emit('error', { message: 'Game not found' });
+          return;
+        }
+        const RequestedUser= await User.findById(userId).select('username');
+        const username = RequestedUser.username;
+        io.to(gameId.toString()).emit('joinRequestVal', { gameId, userId, socketId, username });
+      });
+
+      socket.on('respondToJoinRequest', async ({ gameId, userId, accept, socketId }) => {
+        if (!gameId || !userId) {
+          console.error('Invalid game or user ID for respondToJoinRequest');
+          return;
+        }
+
+        const game = await Game.findById(gameId);
+        if (!game) {
+          socket.emit('error', { message: 'Game not found' });
+          return;
+        }
+        if (accept) {
+          game.participants.push(userId);
+          await game.save();
+          io.to(socketId.toString()).emit('joinRequestResponse', { accepted: true, gameId });
+        } else {
+          io.to(socketId.toString()).emit('joinRequestResponse', { accepted: false });
+        }
+      });
+
       socket.on('joinGame', async (gameId) => {
         if (!gameId) {
           console.error('Invalid game ID for joinGame');
@@ -91,10 +128,10 @@ module.exports = {
 
       socket.on('requestLeaderboard', async (gameId) => {
         try {
-          //console.log("leaderboard requested");
+          console.log("leaderboard requested");
           const game = await Game.findById(gameId).populate('scores.user', 'username');
           if (!game) throw new Error('Game not found');
-          console.log("score fetched:>",game.scores);
+
           const leaderboard = game.scores.map(score => ({
             username: score.user.username,
             score: score.score,
@@ -103,7 +140,7 @@ module.exports = {
 
           leaderboard.sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken);
 
-          //console.log(leaderboard);
+          console.log(leaderboard);
           io.to(gameId).emit('updateLeaderboard', leaderboard);
         } catch (error) {
           console.error('Error fetching leaderboard:', error);
@@ -113,20 +150,7 @@ module.exports = {
       socket.on('endGame', async (gameId) => {
         try {
           const game = await Game.findById(gameId).populate('scores.user', 'username');
-          if (!game) throw new Error('Game not found');
-      
-          //game.endTime = new Date();
-          // await game.save();
-      
-          // const leaderboard = game.scores.map(score => ({
-          //   username: score.user.username,
-          //   score: score.score,
-          //   timeTaken: score.endTime ? (score.endTime - score.startTime) / 1000 : null, // Calculate time taken in seconds
-          // }));
-      
-          // leaderboard.sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken); // Sort by score, then by time
-      
-          // io.to(gameId).emit('updateLeaderboard', leaderboard);
+           if (!game) throw new Error('Game not found');
         } catch (error) {
           console.error('Error ending game:', error);
         }

@@ -75,7 +75,9 @@ router.post('/:gameId/join', auth, async (req, res) => {
 
       // Notify other participants that a new player has joined
       const io = getIo();
-      io.to(game._id.toString()).emit('playerJoined', { playerId: req.user.id });
+      io.to(game._id.toString()).emit('playerJoined', (game),()=>{
+        console.log("playerJoined event emitted:", game);
+      });
     }
 
     res.status(200).json({ message: 'Joined game successfully', game });

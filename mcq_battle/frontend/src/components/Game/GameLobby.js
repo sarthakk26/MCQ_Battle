@@ -10,6 +10,7 @@ const GameLobby = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [joinRequests, setJoinRequests] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +55,8 @@ const GameLobby = () => {
     // Event listeners for socket.io
     socket.emit('joinGame', gameId);
 
-    socket.on('gameUpdated', (updatedGame) => {
+    socket.on('playerJoined', (updatedGame) => {
+      console.log("playerJoined event received:", updatedGame);
       setGame(updatedGame);
       setParticipants(updatedGame.participants);
       setIsOwner(updatedGame.owner._id === localStorage.getItem('userId'));
@@ -64,10 +66,25 @@ const GameLobby = () => {
       navigate(`/game/${gameId}/play`);
     });
 
+    socket.on('joinRequestVal', ({ gameId, userId, socketId, username }) => {
+      console.log('Join request received to owner:', gameId, userId, socketId, username);
+      setJoinRequests((prevRequests) => [...prevRequests, { gameId, userId, socketId, username }]);
+    });
+
     return () => {
       socket.disconnect();
     };
   }, [gameId, navigate]);
+
+  const handleJoinRequest = (userId, accept, socketId) => {
+    const socket = io('http://localhost:5000', {
+      withCredentials: true,
+    });
+    socket.emit('respondToJoinRequest', { gameId, userId, accept, socketId });
+    console.log("gameLobby sent:", accept);
+    // Remove the request from the list
+    setJoinRequests((prevRequests) => prevRequests.filter(request => request.userId !== userId));
+  };
 
   const handleStartGame = async () => {
     try {
@@ -106,6 +123,20 @@ const GameLobby = () => {
           <li key={participant._id}>{participant.username}</li>
         ))}
       </ul>
+      {isOwner && joinRequests.length > 0 && (
+        <div>
+          <h3>Join Requests</h3>
+          <ul>
+            {joinRequests.map(request => (
+              <li key={request.userId}>
+                <span>{request.username} wants to join.</span>
+                <button onClick={() => handleJoinRequest(request.userId, true, request.socketId)}>Accept</button>
+                <button onClick={() => handleJoinRequest(request.userId, false, request.socketId)}>Decline</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {isOwner && game.status === 'waiting' && (
         <button onClick={handleStartGame}>Start Game</button>
       )}

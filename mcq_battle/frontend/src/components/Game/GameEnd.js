@@ -8,6 +8,12 @@ const GameEnd = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   //const [remainingTime, setRemainingTime] = useState(0);
 
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  };
+
   useEffect(() => {
     const socket = io('http://localhost:5000', {
       withCredentials: true,
@@ -46,7 +52,8 @@ const GameEnd = () => {
               <td>{index + 1}</td>
               <td>{entry.username}</td>
               <td>{entry.score}</td>
-              <td>{entry.timeTaken ? `${entry.timeTaken} seconds` : 'In progress...'}</td>
+              <td>{entry.timeTaken ? formatTime(entry.timeTaken) : 'In progress...'}</td>
+              
             </tr>
           ))}
         </tbody>

@@ -11,7 +11,7 @@ const Gameplay = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [owner, setOwner] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [timer, setTimer] = useState(60); // 10 minutes in seconds
+  const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [scores, setScores] = useState([]);
   const navigate = useNavigate();
   const intervalRef = useRef(null);
