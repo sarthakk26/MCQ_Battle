@@ -3,9 +3,13 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 
+
 const createAdmin = async () => {
-  await mongoose.connect('mongodb://localhost:27017/mcq_battle', {
-  });
+
+   console.log('MONGODB_URI:', process.env.MONGODB_URI); // Log to verify
+   console.log('JWT_SECRET:', process.env.JWT_SECRET); // Log to verify
+
+   await mongoose.connect(process.env.MONGODB_URI); // Use the correct variable name
 
   const username = 'admin'; // Replace with desired username
   const password = 'admin'; // Replace with desired password

@@ -53,10 +53,10 @@ const GameLobby = () => {
     fetchGameDetails();
 
     // Event listeners for socket.io
-    socket.emit('joinGame', gameId);
+    const userId= localStorage.getItem('userId');
+    socket.emit('joinGame', {gameId, userId});
 
     socket.on('playerJoined', (updatedGame) => {
-      console.log("playerJoined event received:", updatedGame);
       setGame(updatedGame);
       setParticipants(updatedGame.participants);
       setIsOwner(updatedGame.owner._id === localStorage.getItem('userId'));
@@ -67,8 +67,12 @@ const GameLobby = () => {
     });
 
     socket.on('joinRequestVal', ({ gameId, userId, socketId, username }) => {
-      console.log('Join request received to owner:', gameId, userId, socketId, username);
       setJoinRequests((prevRequests) => [...prevRequests, { gameId, userId, socketId, username }]);
+    });
+
+    socket.on('gameDeleted', (message) => {
+      alert(message.message);
+      navigate('/dashboard');
     });
 
     return () => {
@@ -81,7 +85,6 @@ const GameLobby = () => {
       withCredentials: true,
     });
     socket.emit('respondToJoinRequest', { gameId, userId, accept, socketId });
-    console.log("gameLobby sent:", accept);
     // Remove the request from the list
     setJoinRequests((prevRequests) => prevRequests.filter(request => request.userId !== userId));
   };
@@ -101,6 +104,7 @@ const GameLobby = () => {
         console.error('Failed to start game:', data);
         return;
       }
+    
 
       // Navigate to game play screen upon successful game start
       navigate(`/game/${gameId}/play`);

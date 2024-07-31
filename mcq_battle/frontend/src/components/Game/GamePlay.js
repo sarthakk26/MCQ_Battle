@@ -22,6 +22,9 @@ const Gameplay = () => {
       withCredentials: true,
     });
 
+    
+    const userId = localStorage.getItem('userId');
+
     const fetchGameDetails = async () => {
       try {
         const response = await fetch(
@@ -57,10 +60,10 @@ const Gameplay = () => {
         setLoading(false);
       }
     };
-
+    
     if (gameId) {
       // Join game room
-      socket.current.emit("joinGame", gameId);
+      socket.current.emit("joinGame", {gameId,userId});
 
       fetchGameDetails(); // Call fetchGameDetails inside useEffect
 

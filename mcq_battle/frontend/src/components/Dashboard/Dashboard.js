@@ -17,7 +17,6 @@ const Dashboard = () => {
     setSocket(newSocket);
 
     newSocket.on('newGame', (newGame) => {
-      console.log("newGame event received:", newGame);
       setGames((prevGames) => {
         if (!prevGames.some(game => game._id === newGame._id)) {
           return [...prevGames, newGame];
@@ -85,10 +84,7 @@ const Dashboard = () => {
       const socketId = socket.id;
       socket.emit('joinRequest', { gameId, userId, socketId });
       socket.on('joinRequestResponse', ({ accepted, gameId }) => {
-        console.log('Join request reached dashboard with ::', accepted);
-        if (accepted) {
-          console.log('Join request accepted');
-          
+        if (accepted) {          
           navigate(`/game/${gameId}`);
         } else {
           alert('Your join request was declined.');

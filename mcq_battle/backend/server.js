@@ -1,4 +1,7 @@
 // server.js
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 const express = require('express');
 const http = require('http');
 const mongoose = require('./config/config').connection;
@@ -7,6 +10,7 @@ const mcqRoutes = require('./routes/mcqs');
 const gamesRoutes = require('./routes/games');
 const bodyParser = require('body-parser');
 const { init: initializeSocket } = require('./socket');
+
 const cors = require('cors');
 
 const app = express();

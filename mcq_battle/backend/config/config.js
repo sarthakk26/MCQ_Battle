@@ -1,11 +1,12 @@
 // config/config.js
+require ('dotenv').config();
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://sarthakk26:Sarthak%4026@mcq-battel.bwc5jks.mongodb.net/');
+mongoose.connect(process.env.MONGODB_URI);
 
 const connection = mongoose.connection;
 
 module.exports = {
   connection,
-  jwtSecret: 'my_secret_string' 
+  jwtSecret: process.env.JWT_SECRET 
 };

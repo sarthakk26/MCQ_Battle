@@ -13,13 +13,14 @@ const GameEnd = () => {
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const socket = io('http://localhost:5000', {
       withCredentials: true,
     });
 
-    socket.emit('joinGame', gameId);
+    socket.emit('joinGame', {gameId, userId});
 
     // Request leaderboard once joined
     socket.emit('requestLeaderboard', gameId);
