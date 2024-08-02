@@ -1,0 +1,128 @@
+.admin-manage-mcqs {
+    width: 80%;
+    margin-top:50px;
+    padding: 20px;
+    background-color: rgba(249, 249, 249,0.7);
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-manage-mcqs h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .admin-manage-mcqs h3 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .content {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .mcq-form,
+  .mcqs-list {
+    width: 45%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+  }
+  
+  .mcq-form h2,
+  .mcqs-list h2 {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .mcq-form input[type="text"],
+  .mcq-form input[type="number"],
+  .mcq-form select {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .mcq-form input[type="text"]:focus,
+  .mcq-form input[type="number"]:focus,
+  .mcq-form select:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .mcq-form .add-mcq-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .mcq-form .add-mcq-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .show-mcqs-btn {
+    display: block;
+    margin: 0 auto 10px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .show-mcqs-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .all-mcqs ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .all-mcqs li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .mcq-buttons {
+    display: flex;
+  }
+  
+  .mcq-buttons button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .mcq-buttons .edit-btn {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .mcq-buttons .edit-btn:hover {
+    background-color: #218838;
+  }
+  
+  .mcq-buttons .delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  .mcq-buttons .delete-btn:hover {
+    background-color: #c82333;
+  }
+  

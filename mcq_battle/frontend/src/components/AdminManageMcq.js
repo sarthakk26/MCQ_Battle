@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../assets/styles/AdminManageMcq.css';
 
 const AdminManageMCQs = () => {
   const [mcqs, setMcqs] = useState([]);
@@ -9,6 +10,7 @@ const AdminManageMCQs = () => {
     difficulty: 'medium'
   });
   const [editingMcqId, setEditingMcqId] = useState(null);
+  const [showMcqs, setShowMcqs] = useState(false);
 
   useEffect(() => {
     const fetchMcqs = async () => {
@@ -38,6 +40,10 @@ const AdminManageMCQs = () => {
     } else {
       setNewMcq({ ...newMcq, [name]: value });
     }
+  };
+
+  const handleCorrectOptionChange = (e) => {
+    setNewMcq({ ...newMcq, correctOptionIndex: parseInt(e.target.value) });
   };
 
   const handleAddOrEditMcq = async () => {
@@ -102,59 +108,79 @@ const AdminManageMCQs = () => {
   };
 
   return (
-    <div>
-      <h1>Manage MCQs</h1>
-
-      <div>
-        <h2>{editingMcqId ? 'Edit MCQ' : 'Add New MCQ'}</h2>
-        <input
-          type="text"
-          name="question"
-          placeholder="Question"
-          value={newMcq.question}
-          onChange={handleInputChange}
-        />
-        <div>
-          {newMcq.options.map((option, index) => (
+    <div className='bg'>
+      <div className="admin-manage-mcqs">
+       
+        <div className="content">
+          <div className="mcq-form">
+            <h2>{editingMcqId ? 'Edit MCQ' : 'Add New MCQ'}</h2>
             <input
-              key={index}
               type="text"
-              name={`option${index}`}
-              placeholder={`Option ${index + 1}`}
-              value={option}
-              onChange={(e) => handleInputChange(e, index)}
+              name="question"
+              placeholder="Enter question here"
+              value={newMcq.question}
+              onChange={handleInputChange}
             />
-          ))}
+            <div>
+              {newMcq.options.map((option, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  name={`option${index}`}
+                  placeholder={`Option ${index + 1}`}
+                  value={option}
+                  onChange={(e) => handleInputChange(e, index)}
+                />
+              ))}
+            </div>
+            <select
+              name="correctOptionIndex"
+              value={newMcq.correctOptionIndex}
+              onChange={handleCorrectOptionChange}
+            ><option value="Select Correct Option">Select Correct Option</option>
+              {newMcq.options.map((_, index) => (
+                
+                <option key={index} value={index}>
+                  {`Option ${index + 1}`}
+                </option>
+              ))}
+            </select>
+            <select
+              name="difficulty"
+              value={newMcq.difficulty}
+              onChange={handleInputChange}
+            >
+              <option value="Select Difficulty">Select Difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <button onClick={handleAddOrEditMcq} className="add-mcq-btn">
+              {editingMcqId ? 'Save Changes' : 'Add MCQ'}
+            </button>
+          </div>
+          <div className="mcqs-list">
+            <button className="show-mcqs-btn" onClick={() => setShowMcqs(!showMcqs)}>
+              {showMcqs ? 'Hide All MCQs' : 'Show All MCQs'}
+            </button>
+            {showMcqs && (
+              <div className="all-mcqs">
+                <h2>All MCQs</h2>
+                <ul>
+                  {Array.isArray(mcqs) && mcqs.map((mcq) => (
+                    <li key={mcq._id}>
+                      <span>{mcq.question}</span>
+                      <div className="mcq-buttons">
+                        <button className="edit-btn" onClick={() => handleEditMcq(mcq)}>Edit</button>
+                        <button className="delete-btn" onClick={() => handleDeleteMcq(mcq._id)}>Delete</button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
-        <input
-          type="number"
-          name="correctOptionIndex"
-          value={newMcq.correctOptionIndex}
-          onChange={handleInputChange}
-        />
-        <select
-          name="difficulty"
-          value={newMcq.difficulty}
-          onChange={handleInputChange}
-        >
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-        <button onClick={handleAddOrEditMcq}>{editingMcqId ? 'Save Changes' : 'Add MCQ'}</button>
-      </div>
-
-      <div>
-        <h2>All MCQs</h2>
-        <ul>
-          {Array.isArray(mcqs) && mcqs.map((mcq) => (
-            <li key={mcq._id}>
-              {mcq.question}
-              <button onClick={() => handleEditMcq(mcq)}>Edit</button>
-              <button onClick={() => handleDeleteMcq(mcq._id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

@@ -36,29 +36,38 @@ const Login = () => {
     }
   };
 
+  const handleAdminRedirect = () => {
+    navigate('/admin/login');
+  };
+
   return (
-    <div className="login">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      {error && <p className="error">{error}</p>}
+    <div className='bg'>
+      <div className="login">
+        <h2>Login</h2>
+        <form onSubmit={handleLogin}>
+          <div>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <h3 className='admin-redirect' onClick={handleAdminRedirect} style={{ cursor: 'pointer' }}>
+          Admin Login
+        </h3>
+        {error && <p className="error">{error}</p>}
+      </div>
     </div>
   );
 };

@@ -1,24 +1,15 @@
-/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 
-/* CSS Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
+*{
+  font-family: "Patrick Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
 }
-
-body {
-  background-color: #f8f9fa;
-  color: #333;
-  line-height: 1.6;
+h2{
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-.content {
-  padding: 20px;
+p{
+  font-size: 2rem;
 }

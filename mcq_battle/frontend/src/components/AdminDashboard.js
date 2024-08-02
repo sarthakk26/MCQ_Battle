@@ -1,15 +1,23 @@
-// src/components/AdminDashboard.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../assets/styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className='bg'>
+    <div className="admin-dashboard">
       <h2>Admin Dashboard</h2>
-      <button onClick={() => navigate('/admin/mcqs')}>Manage MCQs</button>
-      <button onClick={() => navigate('/admin/update-credentials')}>Update Credentials</button>
+      <div className="dashboard-buttons">
+        <button className="dashboard-btn" onClick={() => navigate('/admin/mcqs')}>
+          Manage MCQs
+        </button>
+        <button className="dashboard-btn" onClick={() => navigate('/admin/update-credentials')}>
+          Update Credentials
+        </button>
+      </div>
+    </div>
     </div>
   );
 };

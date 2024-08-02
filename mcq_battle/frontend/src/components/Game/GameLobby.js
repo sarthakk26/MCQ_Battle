@@ -52,9 +52,8 @@ const GameLobby = () => {
 
     fetchGameDetails();
 
-    // Event listeners for socket.io
-    const userId= localStorage.getItem('userId');
-    socket.emit('joinGame', {gameId, userId});
+    const userId = localStorage.getItem('userId');
+    socket.emit('joinGame', { gameId, userId });
 
     socket.on('playerJoined', (updatedGame) => {
       setGame(updatedGame);
@@ -85,7 +84,6 @@ const GameLobby = () => {
       withCredentials: true,
     });
     socket.emit('respondToJoinRequest', { gameId, userId, accept, socketId });
-    // Remove the request from the list
     setJoinRequests((prevRequests) => prevRequests.filter(request => request.userId !== userId));
   };
 
@@ -104,11 +102,8 @@ const GameLobby = () => {
         console.error('Failed to start game:', data);
         return;
       }
-    
 
-      // Navigate to game play screen upon successful game start
       navigate(`/game/${gameId}/play`);
-
     } catch (error) {
       console.error('Error starting game:', error);
     }
@@ -118,32 +113,38 @@ const GameLobby = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="game-lobby">
-      <h2>Game Lobby: {game?.owner?.username}'s Game</h2>
-      <p>Status: {game?.status}</p>
-      <p>Participants:</p>
-      <ul>
-        {participants.map(participant => (
-          <li key={participant._id}>{participant.username}</li>
-        ))}
-      </ul>
-      {isOwner && joinRequests.length > 0 && (
-        <div>
-          <h3>Join Requests</h3>
+    <div className="bg">
+      <div className="lobby-container">
+        <div className="game-lobby">
+          <h1>MCQ Battle</h1>
+          <h2>Game Lobby </h2>
+          <p>{game?.owner?.username}'s Game</p>
+          <p>Mode: {game.gameMode}</p>
+          <p>Participants:</p>
           <ul>
-            {joinRequests.map(request => (
-              <li key={request.userId}>
-                <span>{request.username} wants to join.</span>
-                <button onClick={() => handleJoinRequest(request.userId, true, request.socketId)}>Accept</button>
-                <button onClick={() => handleJoinRequest(request.userId, false, request.socketId)}>Decline</button>
-              </li>
+            {participants.map(participant => (
+              <li key={participant._id}>{participant.username}</li>
             ))}
           </ul>
+          {isOwner && game.status === 'waiting' && (
+            <button onClick={handleStartGame}>Start Game</button>
+          )}
         </div>
-      )}
-      {isOwner && game.status === 'waiting' && (
-        <button onClick={handleStartGame}>Start Game</button>
-      )}
+        {isOwner && joinRequests.length > 0 && (
+          <div className="join-requests">
+            <h3>Join Requests</h3>
+            <ul>
+              {joinRequests.map(request => (
+                <li key={request.userId}>
+                  <span>{request.username} wants to join.</span>
+                  <button onClick={() => handleJoinRequest(request.userId, true, request.socketId)}>Accept</button>
+                  <button onClick={() => handleJoinRequest(request.userId, false, request.socketId)}>Decline</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

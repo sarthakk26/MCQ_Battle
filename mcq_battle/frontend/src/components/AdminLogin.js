@@ -35,7 +35,8 @@ const AdminLogin = () => {
       };
 
       return (
-        <div className="admin-login">
+        <div className='bg'>
+        <div className="login">
           <h2>Admin Login</h2>
           {error && <p style={{ color: 'red' }}>{error}</p>}
           <form onSubmit={handleLogin}>
@@ -59,6 +60,7 @@ const AdminLogin = () => {
             </div>
             <button type="submit">Login</button>
           </form>
+        </div>
         </div>
       );
     };

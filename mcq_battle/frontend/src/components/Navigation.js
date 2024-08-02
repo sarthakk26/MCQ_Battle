@@ -14,22 +14,24 @@ const Navigation = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
-        <Link to="/">MCQ BATTLE</Link>
+      <div className="navbar-left">
+        <Link to="/">Home</Link>
+        {isAuthenticated && <Link to="/dashboard">Dashboard</Link>}
       </div>
-      <ul className="navbar-links">
-        <li><Link to="/">Home</Link></li>
-        {!isAuthenticated && <li><Link to="/login">Login</Link></li>}
-        {!isAuthenticated && <li><Link to="/register">Register</Link></li>}
-        {isAuthenticated && <li><Link to="/dashboard">Dashboard</Link></li>}
+      <div className="navbar-container">
+        <h1 className="navbar-brand">
+          <Link to="/">MCQ BATTLE</Link>
+        </h1>
+      </div>
+      <div className="navbar-right">
+        {!isAuthenticated && <Link to="/login">Login</Link>}
+        {!isAuthenticated && <Link to="/register">Register</Link>}
         {isAuthenticated && (
-          <li>
-            <button onClick={handleLogout} className="logout-button">
-              Logout
-            </button>
-          </li>
+          <button onClick={handleLogout} className="logout-button">
+            Logout
+          </button>
         )}
-      </ul>
+      </div>
     </nav>
   );
 };

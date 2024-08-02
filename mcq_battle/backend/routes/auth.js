@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User.js');
 const Admin = require('../models/Admin'); 
 const config = require('../config/config'); // Make sure config.js contains the JWT secret
+const auth = require('../middleware/auth');
 
 // Registration Endpoint
 router.post('/signup', async (req, res) => {
@@ -84,6 +85,28 @@ router.post('/admin/login', async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
+  }
+});
+// Update credentials route
+router.put('admin/update', auth, async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const admin = await Admin.findOne();
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    admin.username = username;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      admin.password = await bcrypt.hash(password, salt);
+    }
+
+    await admin.save();
+    res.json({ message: 'Admin credentials updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

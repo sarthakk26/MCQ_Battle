@@ -6,6 +6,7 @@ import '../../assets/styles/Dashboard.css';
 const Dashboard = () => {
   const [games, setGames] = useState([]);
   const [creatingGame, setCreatingGame] = useState(false);
+  const [selectedGameMode, setSelectedGameMode] = useState('standard');
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
 
@@ -64,8 +65,9 @@ const Dashboard = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        body: JSON.stringify({ gameMode: selectedGameMode }),
       });
-
+      console.log(selectedGameMode);
       const data = await response.json();
       if (response.ok) {
         navigate(`/game/${data.game._id}`);
@@ -94,6 +96,7 @@ const Dashboard = () => {
   };
 
   return (
+    <div className='bg'>
     <div className="dashboard">
       <h2>Available Games</h2>
       {games.length > 0 ? (
@@ -101,8 +104,8 @@ const Dashboard = () => {
           {games.map((game) => (
             <li key={game._id}>
               <div className="game-info">
-                <span>Game: {game.ownerName}</span>
-                <span>Participants: {game.participants.length}</span>
+                <span>Lobby :  {game.ownerName}</span>
+                <span>Mode : {game.gameMode}</span>
               </div>
               <button onClick={() => handleJoinGame(game._id)}>Join Game</button>
             </li>
@@ -111,13 +114,28 @@ const Dashboard = () => {
       ) : (
         <p>No available games at the moment.</p>
       )}
-      <button 
-        onClick={handleCreateGame} 
-        disabled={creatingGame} 
-        className="create-game-button"
-      >
-        {creatingGame ? 'Creating Game...' : 'Create New Game'}
-      </button>
+      
+      <div className="create-game">
+        <label htmlFor="game-mode">Select Game Mode:</label>
+        <select
+          id="game-mode"
+          value={selectedGameMode}
+          onChange={(e) => setSelectedGameMode(e.target.value)}
+          disabled={creatingGame}
+        >
+          <option value="standard">Standard</option>
+          <option value="fastest">Fastest Answer First</option>
+        </select>
+        
+        <button 
+          onClick={handleCreateGame} 
+          disabled={creatingGame} 
+          className="create-game-button"
+        >
+          {creatingGame ? 'Creating Game...' : 'Create New Game'}
+        </button>
+      </div>
+    </div>
     </div>
   );
 };

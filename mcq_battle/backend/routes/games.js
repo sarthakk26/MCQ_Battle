@@ -7,6 +7,7 @@ const mcq = require('../models/mcq');
 const { getIo, updateScoreAndEmit,endGameForPlayer } = require('../socket'); // Import getIo from socket.js
 const User = require('../models/User');
 
+
 // Function to generate random questions
 const getRandomQuestions = async (count) => {
   return mcq.aggregate([{ $sample: { size: 5 } }]);
@@ -14,6 +15,14 @@ const getRandomQuestions = async (count) => {
 
 // POST /api/games - Create a new game
 router.post('/', auth, async (req, res) => {
+
+  const { gameMode } = req.body;
+
+  // Validate the gameMode input
+  if (!['standard', 'fastest'].includes(gameMode)) {
+    return res.status(400).json({ message: 'Invalid game mode selected' });
+  }
+
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
@@ -25,6 +34,7 @@ router.post('/', auth, async (req, res) => {
       ownerName: user.username,
       participants: [req.user.id],
       status: 'waiting',
+      gameMode: gameMode,
     });
 
     await newGame.save();
@@ -76,6 +86,7 @@ router.post('/:gameId/join', auth, async (req, res) => {
       // Notify other participants that a new player has joined
       const io = getIo();
       io.to(game._id.toString()).emit('playerJoined', (game),()=>{
+        console.log("player joined");
       });
     }
 
@@ -162,6 +173,7 @@ router.post('/:gameId/answer', auth, async (req, res) => {
     if (!question) return res.status(404).json({ message: 'Question not found' });
 
     let correct = false;
+
     if (question.options[question.correctOptionIndex] === answer) {
       correct = true;
       const participant = game.scores.find(score => score.user.toString() === req.user.id);
@@ -170,38 +182,59 @@ router.post('/:gameId/answer', auth, async (req, res) => {
       // Update score and emit to all participants
       await updateScoreAndEmit(gameId, req.user.id, newScore);
     }
+    
 
-    // Move to the next question for this participant
-    game.participantProgress.set(req.user.id, game.participantProgress.get(req.user.id) + 1 || 1);
+    if (game.gameMode === 'fastest') {
+      // Move to the next question for all participants
+      const nextQuestionIndex = (game.currentQuestionIndex + 1);
+      game.currentQuestionIndex = nextQuestionIndex;
+      const nextQuestion = await mcq.findById(game.questions[nextQuestionIndex]);
 
-    const nextQuestionIndex = game.participantProgress.get(req.user.id);
-    let nextQuestion = null;
-
-    if (nextQuestionIndex < game.questions.length) {
-      nextQuestion = await mcq.findById(game.questions[nextQuestionIndex]);
-    }
-
-    if (!nextQuestion) {
-      game.status = 'completed';
-      const io = getIo();
-      io.to(game._id.toString()).emit('gameEnded');
+      if (nextQuestion) {
+        const io = getIo();
+        io.to(game._id.toString()).emit('question', nextQuestion);
+      } else {
+        game.status = 'completed';
+        const io = getIo();
+        io.to(game._id.toString()).emit('gameEnded');
+      }
+      
+      await game.save();
+      res.status(200).json({ correct, nextQuestion });
     } else {
-      const io = getIo();
-      io.to(game._id.toString()).emit('nextQuestion', { question: nextQuestion, userId: req.user.id });
-    }
+      // Update progress for the specific participant
+      game.participantProgress.set(req.user.id, (game.participantProgress.get(req.user.id) || 0) + 1);
+      const nextQuestionIndex = game.participantProgress.get(req.user.id);
+      let nextQuestion = null;
 
-    await game.save();
-    res.status(200).json({ correct, nextQuestion });
+      if (nextQuestionIndex < game.questions.length) {
+        nextQuestion = await mcq.findById(game.questions[nextQuestionIndex]);
+      }
+
+      if (!nextQuestion) {
+        game.status = 'completed';
+
+      } else {
+        const io = getIo();
+        io.to(game._id.toString()).emit('nextQuestion', { question: nextQuestion, userId: req.user.id });
+      }
+
+      await game.save();
+      res.status(200).json({ correct, nextQuestion });
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
+
+
+
 // POST /api/games/:gameId/end - End the game
 // POST /api/games/:gameId/end - End the game
 router.post('/:gameId/end', auth, async (req, res) => {
   try {
-    const game = await Game.findById(req.params.gameId);
+    const game = await Game.findById(req.params.gameId).populate('scores.user', 'username');
     if (!game) {
       return res.status(404).json({ message: 'Game not found' });
     }
@@ -209,12 +242,18 @@ router.post('/:gameId/end', auth, async (req, res) => {
     game.status = 'completed';
     await game.save();
 
-    // Call endGameForPlayer for all players
-    await endGameForPlayer(req.params.gameId, req.user.id);
-    
-
-    // const io = getIo();
-    // io.to(game._id.toString()).emit('RequestLeaderboard', game._id);
+    if (game.gameMode === 'fastest') {
+      // Call endGameForPlayer for all players
+      for (const scoreEntry of game.scores) {
+        await endGameForPlayer(req.params.gameId, scoreEntry.user._id.toString());
+      }
+    } else {
+      // Call endGameForPlayer only for the current user
+      await endGameForPlayer(req.params.gameId, req.user.id);
+      console.log("reaching here")
+    }
+    const io = getIo();
+    io.to(game._id.toString()).emit('RequestLeaderboard', game._id);
 
     res.status(200).json({ message: 'Game ended successfully' });
   } catch (err) {
@@ -222,6 +261,7 @@ router.post('/:gameId/end', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
 
 
 module.exports = router;

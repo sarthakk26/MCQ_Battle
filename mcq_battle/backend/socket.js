@@ -55,7 +55,6 @@ module.exports = {
       },
     });
 
-    
     const userIdToSocketIdMap = {};
 
     io.on('connection', (socket) => {
@@ -71,7 +70,7 @@ module.exports = {
           socket.emit('error', { message: 'Game not found' });
           return;
         }
-        const RequestedUser= await User.findById(userId).select('username');
+        const RequestedUser = await User.findById(userId).select('username');
         const username = RequestedUser.username;
         io.to(gameId.toString()).emit('joinRequestVal', { gameId, userId, socketId, username });
       });
@@ -101,24 +100,24 @@ module.exports = {
           console.error('Invalid game ID or user ID for joinGame');
           return;
         }
-    
+
         const game = await Game.findById(gameId);
         if (!game) {
           socket.emit('error', { message: 'Game not found' });
           return;
         }
-    
+
         socket.join(gameId);
-        socket.userId = userId; // Store the user ID in the socket instance
-        socket.gameId = gameId; // Store the game ID in the socket instance
-          
+        socket.userId = userId; 
+        socket.gameId = gameId; 
+
         if (game.status === 'active' && game.currentQuestionIndex < game.questions.length) {
           const question = await mcq.findById(game.questions[game.currentQuestionIndex]);
           if (question) {
             socket.emit('question', question);
           }
         }
-    
+
         const populatedGame = await Game.findById(gameId).populate("scores.user", "username");
         socket.emit('scoreUpdate', populatedGame.scores);
       });
@@ -135,7 +134,7 @@ module.exports = {
           }));
 
           leaderboard.sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken);
-
+          console.log(leaderboard);
           io.to(gameId).emit('updateLeaderboard', leaderboard);
         } catch (error) {
           console.error('Error fetching leaderboard:', error);
@@ -145,7 +144,10 @@ module.exports = {
       socket.on('endGame', async (gameId) => {
         try {
           const game = await Game.findById(gameId).populate('scores.user', 'username');
-           if (!game) throw new Error('Game not found');
+          if (!game) throw new Error('Game not found');
+          game.status = 'finished';
+          await game.save();
+          io.to(gameId).emit('gameFinished');
         } catch (error) {
           console.error('Error ending game:', error);
         }
@@ -155,15 +157,15 @@ module.exports = {
         console.log('Client disconnected:', socket.id);
 
         const userId = socket.userId;
-    const gameId = socket.gameId;
+        const gameId = socket.gameId;
 
-    if (!userId || !gameId) return;
+        if (!userId || !gameId) return;
 
-    const game = await Game.findById(gameId);
+        const game = await Game.findById(gameId);
 
-    if (game && game.owner.toString() === userId.toString() && game.status !== 'active') {
-      await Game.findByIdAndDelete(game._id);
-      io.to(gameId.toString()).emit('gameDeleted', { message: 'Game has been deleted as the owner has left.' });
+        if (game && game.owner.toString() === userId.toString() && game.status !== 'active') {
+          await Game.findByIdAndDelete(game._id);
+          io.to(gameId.toString()).emit('gameDeleted', { message: 'Game has been deleted as the owner has left.' });
         }
       });
     });

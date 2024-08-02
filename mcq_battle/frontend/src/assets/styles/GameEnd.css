@@ -1,52 +1,52 @@
+/* src/assets/styles/GameEnd.css */
+
 .game-end {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: #555;
-  }
-  
-  .leaderboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .leaderboard-table th,
-  .leaderboard-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .leaderboard-table th {
-    background-color: #f4f4f4;
-    color: #333;
-  }
-  
-  .leaderboard-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .leaderboard-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .timer {
-    font-size: 1rem;
-    color: #555;
-  }
-  
-  .timer p {
-    margin: 10px 0;
-  }
-  
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  margin-top: 80px;
+  background-color: rgba(255, 255, 255, 0.7);
+  width:700px;
+  min-height: 500px;
+  border: solid 1px rgb(217, 217, 217);
+  border-radius: 20px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+/* Leaderboard table styles */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.leaderboard-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.leaderboard-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.leaderboard-table tr:hover {
+  background-color: #f1f1f1;
+}

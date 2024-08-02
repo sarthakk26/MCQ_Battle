@@ -38,6 +38,7 @@ const Register = () => {
   };
 
   return (
+    <div className='bg'>
     <div className="register">
       <h2>Register</h2>
       <form onSubmit={handleRegister}>
@@ -68,6 +69,7 @@ const Register = () => {
         <button type="submit">Register</button>
       </form>
       {error && <p className="error">{error}</p>}
+    </div>
     </div>
   );
 };

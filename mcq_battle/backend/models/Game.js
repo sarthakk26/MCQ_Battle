@@ -13,6 +13,7 @@ const gameSchema = new Schema({
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date },
   }],
+  gameMode: { type: String, required: true },
   participantProgress: { type: Map, of: Number, default: {} }, // Track each participant's question index
   status: { type: String, default: 'waiting' },
 });
